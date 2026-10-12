@@ -108,4 +108,4 @@ Text-based PDFs work best; OCR is not included. Retrieved passages may omit rele
 
 ## Attribution and license
 
-The source originated in the private CS494 class repository. Aya Taje identifies herself as the application's developer and credits Manav Malik for TA review support. No new open-source license has been assigned in this portfolio preparation.
+The source originated in the private CS494 class repository.
