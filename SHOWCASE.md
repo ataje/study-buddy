@@ -2,7 +2,7 @@
 
 **A multi-agent RAG tutor for lecture PDFs**
 
-Study Buddy turns static lecture material into guided explanations, follow-up answers and practice quizzes. I built the application in Python with Streamlit, sentence-transformer embeddings and ChromaDB for my CS494 Agentic AI course at the University of Illinois Chicago. Manav Malik provided TA review support.
+Study Buddy turns static lecture material into guided explanations, follow-up answers and practice quizzes. I built the application in Python with Streamlit, sentence-transformer embeddings and ChromaDB for my CS494 Agentic AI course at the University of Illinois Chicago.
 
 Six focused agents separate routing, query enhancement, retrieval, explanation, quiz generation and response review. This makes the workflow easier to inspect and extend. The portfolio preparation adds page metadata and visible source passages, session-isolated document collections, bounded uploads, validated quiz responses and controls on model usage.
 
