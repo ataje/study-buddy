@@ -4,11 +4,13 @@
 
 Built by **Aya Taje** for CS494 Agentic AI at the University of Illinois Chicago. **Manav Malik provided TA review support.** This portfolio release extends the original class application while preserving its Python, Streamlit, ChromaDB and agent structure.
 
+**Public preview:** [aya-study-buddy.streamlit.app](https://aya-study-buddy.streamlit.app/)
+
 ## Release status
 
 The app opens with a **sample preview** that needs no account, uploads or API credits. Its lesson, questions and follow-up answers are explicitly labeled as **prewritten examples**. The quiz is interactive and graded deterministically.
 
-**Live AI starts disabled.** It requires an OpenAI-compatible provider, a supported model, a server-side API key, and a durable public usage counter. No live provider credentials are included in this repository. Provider generation, the real MiniLM model download, and public hosting must be verified in the deployment environment before describing this as a fully live AI demo.
+**Live AI starts disabled.** It requires an OpenAI-compatible provider, a supported model, a server-side API key, and a durable public usage counter. No live provider credentials are included in this repository. The public sample preview is deployed. Provider generation and the real MiniLM model download remain unverified; this is not yet a fully live AI demo.
 
 ## Try it
 
@@ -75,7 +77,7 @@ python -m pip check
 
 The prepared release passed **20 automated checks** using Python 3.12, real ChromaDB storage with deterministic test embeddings, and Streamlit AppTest. They cover session isolation, page metadata, document replacement, PDF limits, concurrent daily quotas, quota-store failure, configuration, provider-error redaction, quiz validation, grading, no-document routing, failed review handling, sample interaction and rerun behavior.
 
-Provider calls and Redis HTTP responses are mocked in these checks. **They do not establish live model accuracy or provider connectivity.** The actual MiniLM download was blocked by network restrictions in the preparation environment. Visual browser QA and live end-to-end checks are still required on the published app.
+Provider calls and Redis HTTP responses are mocked in these checks. **They do not establish live model accuracy or provider connectivity.** The actual MiniLM download was blocked by network restrictions in the preparation environment. The deployed preview was checked in Chrome and a separate browser session: lesson, missing-evidence response, 3/3 quiz grading, source pages and notes download. Live end-to-end checks remain pending.
 
 ## Project files
 

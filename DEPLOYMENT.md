@@ -4,7 +4,7 @@
 
 The preview can be deployed without an AI provider or quota-store account. It contains no secret key and cannot make paid model calls. The UI clearly distinguishes the prewritten sample from live AI.
 
-1. Put this prepared folder's **contents** in a personal GitHub repository. Preserve `agents/`, `rag/`, `llm/`, `samples/`, `tests/` and `.streamlit/`. Keep the original classroom repository separate.
+1. The prepared source is published at [ataje/study-buddy](https://github.com/ataje/study-buddy). For a new deployment, put this prepared folder's **contents** in a personal GitHub repository. Preserve `agents/`, `rag/`, `llm/`, `samples/`, `tests/` and `.streamlit/`. Keep the original classroom repository separate.
 2. Sign in at [Streamlit Community Cloud](https://share.streamlit.io/). Connect the GitHub account that owns the personal repository.
 3. Create an app with the repository, branch `main`, and entrypoint `app.py`.
 4. In Advanced settings, choose **Python 3.12**. The Python version is chosen in the deployment UI; do not rely on a `runtime.txt` file.
@@ -14,7 +14,7 @@ The preview can be deployed without an AI provider or quota-store account. It co
 
 If files were uploaded inside a wrapper directory, move them to the repository root before deployment. Streamlit custom configuration should be at `.streamlit/config.toml` in the repository root.
 
-The Linux deployment prefers CPU-only PyTorch wheels through the additional official PyTorch package index. Dependency resolution and resource use must be checked on the cloud host; successful installation on macOS does not prove the Linux build will pass.
+The Linux deployment prefers CPU-only PyTorch wheels through the additional official PyTorch package index. Dependency installation and all 20 tests passed in GitHub Actions on Linux. Resource use and the Streamlit host build still require deployment verification.
 
 ## Enable live AI
 
@@ -60,4 +60,4 @@ Use environment variables or an ignored `.streamlit/secrets.toml`. For local tes
 
 ## Current verification boundary
 
-The prepared code passed 20 automated checks and dependency consistency checks. The sample was exercised with Streamlit AppTest. This environment blocked binding a local preview port and downloading the MiniLM model, so browser layout and real-model retrieval were not verified here. No live provider key or Redis account was supplied. Update this section after completing cloud build, visual and live checks.
+The prepared code passed 20 automated checks and dependency consistency checks locally and in GitHub Actions on Linux. The sample was exercised with Streamlit AppTest. This environment blocked binding a local preview port and downloading the MiniLM model. The preview is now deployed at https://aya-study-buddy.streamlit.app/ and checked in Chrome plus a separate browser session. The lesson, unsupported sample question, 3/3 quiz grading, source pages and notes download worked; homepage geometry at a 390px viewport had no horizontal overflow. Real-model retrieval remains unverified. No live provider key or Redis account was supplied. Live provider and quota-store checks are still required before enabling public AI generation.

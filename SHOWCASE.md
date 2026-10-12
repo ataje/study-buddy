@@ -10,9 +10,9 @@ The project reflects the kind of operational automation I want to build: turn a 
 
 **Try the preview:** read the sample lesson, answer the three-question quiz, then check each claim against the source. The sample is explicitly labeled as prewritten. Live AI requires a connected provider and configured usage limits.
 
-**Validation:** 20 automated regression and UI checks passed. These test software behavior with mocked provider calls and fixed test embeddings; they do not establish live-model accuracy. Public hosting and live provider checks remain pending.
+**Validation:** 20 automated regression and UI checks passed locally and in GitHub Actions on Linux. These test software behavior with mocked provider calls and fixed test embeddings; they do not establish live-model accuracy. The public preview was checked in Chrome and a separate browser session: lesson, missing-evidence response, 3/3 quiz grading, source pages and notes download. Live provider checks remain pending.
 
-**Public website:** pending verified deployment.  
-**Public source:** https://github.com/ataje/study-buddy (upload in progress).
+**Public website:** https://aya-study-buddy.streamlit.app/  
+**Public source:** https://github.com/ataje/study-buddy.
 
-This description should be updated with verified links and live-test results before it is submitted to recruiters. No accuracy percentage or hours-saved claim has been measured.
+The public link currently demonstrates the sample experience; live AI is not connected. No accuracy percentage or hours-saved claim has been measured.
