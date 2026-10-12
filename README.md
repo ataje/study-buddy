@@ -2,7 +2,7 @@
 
 **A multi-agent tutor that turns lecture PDFs into explanations, follow-up answers and practice quizzes.**
 
-Built by **Aya Taje** for CS494 Agentic AI at the University of Illinois Chicago. **Manav Malik provided TA review support.** This portfolio release extends the original class application while preserving its Python, Streamlit, ChromaDB and agent structure.
+Built by **Aya Taje** 
 
 **Public preview:** [aya-study-buddy.streamlit.app](https://aya-study-buddy.streamlit.app/)
 
