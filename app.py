@@ -1113,7 +1113,7 @@ if any(sources for _, sources in source_groups):
 if st.session_state.page == "home":
     st.divider()
     with st.expander("About Study Buddy"):
-        st.write("Built by Aya Taje for CS494 Agentic AI at the University of Illinois Chicago, with TA review support from Manav Malik.")
+        st.write("Built by Aya Taje for CS494 Agentic AI at the University of Illinois Chicago.")
         st.write("Six focused agents coordinate routing, query enhancement, retrieval, explanations, quizzes and response review. The live app uses Python, Streamlit, sentence-transformer embeddings and ChromaDB.")
         st.caption("Text-based PDFs work best. AI answers and short-answer grading can be wrong. Uploads do not persist across expired sessions or restarts. No accounts or long-term document library are provided.")
         repository = str(setting("SOURCE_REPOSITORY_URL", ""))
