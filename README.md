@@ -106,6 +106,4 @@ Text-based PDFs work best; OCR is not included. Retrieved passages may omit rele
 - [Streamlit storage considerations](https://docs.streamlit.io/develop/concepts/connections/connecting-to-data)
 - [Chroma Python clients](https://docs.trychroma.com/reference/python)
 
-## Attribution and license
 
-The source originated in the private CS494 class repository.
