@@ -418,6 +418,8 @@ def clear_quiz_inputs():
 def reset_learning_views():
     st.session_state.lesson_attempted = False
     clear_quiz_inputs()
+    for key in ("followup_input", "quiz_prompt_input"):
+        st.session_state.pop(key, None)
     st.session_state.explanation = ""
     st.session_state.retrieved_chunks = []
     st.session_state.lesson_sections = []
@@ -426,6 +428,9 @@ def reset_learning_views():
     st.session_state.last_enhanced_query = None
     st.session_state.last_review_notes = ""
     st.session_state.review_approved = None
+    st.session_state.lesson_sources = []
+    st.session_state.answer_sources = []
+    st.session_state.quiz_sources = []
     st.session_state.quiz_data = None
     st.session_state.quiz_query = ""
     st.session_state.revealed_answers = {}
@@ -451,6 +456,7 @@ def review_explanation(user_query, draft_response, retrieved_chunks):
     )
     st.session_state.last_review_notes = review.get("notes", "")
     st.session_state.review_approved = review.get("approved") is True
+    st.session_state.answer_sources = list(st.session_state.retrieval_agent.last_sources)
     if not review.get("approved"):
         st.warning("The review could not approve this draft. Check the source passages before relying on it.")
     return review.get("final_response", draft_response)
@@ -459,6 +465,9 @@ def review_explanation(user_query, draft_response, retrieved_chunks):
 # SESSION STATE
 # ─────────────────────────────────────────────────────────────────────────────
 defaults = {
+    "lesson_sources": [],
+    "answer_sources": [],
+    "quiz_sources": [],
     "lesson_attempted": False,
     "other_payload": None,
     "mode": None,
@@ -750,17 +759,18 @@ elif st.session_state.page == "home":
                             quiz = st.session_state.quiz_agent.generate_quiz(chunks)
                             clear_quiz_inputs()
                             st.session_state.quiz_data = quiz
+                            st.session_state.quiz_sources = list(st.session_state.retrieval_agent.last_sources)
                             st.session_state.quiz_query = other_query
                             st.session_state.revealed_answers = {}
                             st.session_state.quiz_feedback = {}
                             st.session_state.page = "quiz"
                             st.rerun()
                         elif selected == "retrieval_agent" and not any(word in other_query.lower() for word in ("summar", "overview")):
-                            st.session_state.other_payload = {"passages": chunks}
+                            st.session_state.other_payload = {"passages": chunks, "sources": list(st.session_state.retrieval_agent.last_sources)}
                         else:
                             draft = st.session_state.explaining_agent.answer_followup(enhancement["enhanced_query"], chunks)
                             answer = review_explanation(enhancement["enhanced_query"], draft, chunks)
-                            st.session_state.other_payload = {"answer": answer}
+                            st.session_state.other_payload = {"answer": answer, "sources": list(st.session_state.retrieval_agent.last_sources)}
             except Exception as exc:
                 show_error(exc)
         payload = st.session_state.other_payload
@@ -816,6 +826,7 @@ elif st.session_state.page == "explaining":
                     chunks,
                 )
                 st.session_state.explanation = explanation
+                st.session_state.lesson_sources = list(st.session_state.retrieval_agent.last_sources)
                 st.session_state.lesson_sections = split_sections(explanation)
                 st.session_state.current_section_index = 0
         except Exception as exc:
@@ -969,6 +980,7 @@ elif st.session_state.page == "quiz":
                 quiz = st.session_state.quiz_agent.generate_quiz(quiz_chunks)
                 clear_quiz_inputs()
                 st.session_state.quiz_data = quiz
+                st.session_state.quiz_sources = list(st.session_state.retrieval_agent.last_sources)
                 st.session_state.revealed_answers = {}
                 st.session_state.quiz_feedback = {}
         except Exception as exc:
@@ -1077,12 +1089,26 @@ elif st.session_state.page == "quiz":
 if st.session_state.page != "sample" and st.session_state.review_approved is False:
     st.warning("This explanation is an unapproved draft. Verify it against the source passages.")
 
-if st.session_state.page != "sample" and st.session_state.retrieval_agent.last_sources:
+source_groups = []
+if st.session_state.page == "explaining":
+    if st.session_state.lesson_sections:
+        source_groups.append(("Lesson evidence", st.session_state.lesson_sources))
+    if st.session_state.last_answer:
+        source_groups.append(("Follow-up evidence", st.session_state.answer_sources))
+elif st.session_state.page == "quiz" and st.session_state.quiz_data:
+    source_groups.append(("Quiz evidence", st.session_state.quiz_sources))
+elif st.session_state.page == "home" and st.session_state.other_payload:
+    source_groups.append(("Response evidence", st.session_state.other_payload.get("sources", [])))
+
+if any(sources for _, sources in source_groups):
     with st.expander("Check the source passages"):
-        st.caption("These are the retrieved passages supplied to the agents. Check the citations and claims against them.")
-        for source in st.session_state.retrieval_agent.last_sources:
-            st.write(f"**{source['document']} · page {source['page']}**")
-            st.write(source["text"])
+        st.caption("These passages were supplied for the displayed result. Check its citations and claims against them.")
+        for label, sources in source_groups:
+            if sources:
+                st.subheader(label)
+            for source in sources:
+                st.write(f"**{source['document']} · page {source['page']}**")
+                st.write(source["text"])
 
 if st.session_state.page == "home":
     st.divider()

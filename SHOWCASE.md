@@ -13,6 +13,6 @@ The project reflects the kind of operational automation I want to build: turn a 
 **Validation:** 20 automated regression and UI checks passed. These test software behavior with mocked provider calls and fixed test embeddings; they do not establish live-model accuracy. Public hosting and live provider checks remain pending.
 
 **Public website:** pending verified deployment.  
-**Public source:** pending verified publication.
+**Public source:** https://github.com/ataje/study-buddy (upload in progress).
 
 This description should be updated with verified links and live-test results before it is submitted to recruiters. No accuracy percentage or hours-saved claim has been measured.
