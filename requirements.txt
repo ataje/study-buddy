@@ -1,0 +1,9 @@
+# Direct dependencies only. Python 3.12 is the tested deployment target.
+# On Linux, prefer CPU PyTorch wheels to avoid unnecessary CUDA packages.
+--extra-index-url https://download.pytorch.org/whl/cpu
+streamlit==1.56.0
+chromadb==1.5.5
+sentence-transformers==5.3.0
+torch==2.11.0
+openai==2.30.0
+pypdf==6.9.2
