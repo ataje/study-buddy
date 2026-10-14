@@ -4,13 +4,13 @@
 
 Built by **Aya Taje**
 
-**Public preview:** [aya-study-buddy.streamlit.app](https://aya-study-buddy.streamlit.app/)
+**Public website:** [aya-study-buddy.streamlit.app](https://aya-study-buddy.streamlit.app/)
 
 ## Release status
 
 The notebook interface puts lecture uploads, Study, Practice and Ask in one focused workspace. A separate **sample preview** needs no account, uploads or API credits. Its lesson, questions and follow-up answers are explicitly labeled as **prewritten examples**. The sample quiz is interactive and graded deterministically.
 
-**Public live AI remains disabled.** It requires an OpenAI-compatible provider, a supported model, a server-side API key, and a durable public usage counter. No live provider credentials are included in this repository. Real PDF retrieval, lesson generation, quiz generation and multiple-choice grading have been tested locally with Groq. This local verification does not enable or verify public live AI.
+**Public live AI is connected and browser-tested with Groq and a durable Upstash usage counter.** Upload a text-based lecture PDF to try a lesson, quiz or evidence-based question. Credentials are stored in Streamlit's encrypted secrets settings, not this repository. The deployment allows **100 provider calls per UTC day across all visitors** and **20 per session per day**; a single action can use several calls. The prewritten sample remains available without provider usage.
 
 ## Notebook interface update — October 14, 2026
 
@@ -19,7 +19,7 @@ The notebook interface puts lecture uploads, Study, Practice and Ask in one focu
 - Lessons, quiz feedback and answers sit beside an evidence panel with source passages and page references.
 - The sample uses the same notebook style while retaining its explicit prewritten-example label.
 
-The notebook release passed local checks and was approved for publication. Cloud verification of this interface is pending.
+The notebook release is published on GitHub `main`, GitHub Actions passed, and the public notebook interface was checked in a browser.
 
 ## Try it
 
@@ -64,7 +64,7 @@ The agents have focused inputs and outputs. Homepage routing, PDF validation and
 - Each file is limited to **5 MB, 40 pages and 25,000 extracted words**; a session holds at most **three documents**.
 - Provider work runs on explicit submission. Cached UI state prevents free-form requests from running again on ordinary Streamlit reruns; failed lessons require an explicit retry.
 - Model output is capped at **1,200 tokens per call** by default. Prompts are limited to **24,000 characters**. SDK retries are disabled, and requests have a timeout.
-- Default quotas are **100 provider calls per UTC day across all visitors** and **30 per session per day**. Every attempted request reserves a call before reaching the provider. A user action can require several calls.
+- The public deployment allows **100 provider calls per UTC day across all visitors** and **20 per session per day**. Every attempted request reserves a call before reaching the provider. A user action can require several calls. Limits are configurable; the code's fallback session allowance is 30.
 - Public live mode requires a **durable Redis REST counter** with an atomic reservation. If the counter is unavailable or the quota is exhausted, provider calls fail closed. Local development can use SQLite.
 - API keys belong in environment variables or Streamlit deployment secrets. Real secrets files and runtime state are ignored by Git. Provider errors are redacted before display.
 - Quiz structure, question types, answer membership and short-answer scores are validated. Untrusted text is escaped when inserted into HTML; generated answers use Streamlit's normal Markdown renderer.
@@ -84,11 +84,15 @@ python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-The notebook release passed **24 automated checks locally** using Python 3.12, real ChromaDB storage with deterministic test embeddings, and Streamlit AppTest. They cover session isolation, page metadata, document replacement, PDF limits, concurrent daily quotas, quota-store failure, configuration, provider-error redaction, quiz validation, grading, no-document routing, failed review handling, sample interaction, navigation and rerun behavior.
+The notebook release passed **24 automated checks locally**, and its GitHub Actions run passed on Linux. Tests use Python 3.12, real ChromaDB storage with deterministic test embeddings, and Streamlit AppTest. They cover session isolation, page metadata, document replacement, PDF limits, concurrent daily quotas, quota-store failure, configuration, provider-error redaction, quiz validation, grading, no-document routing, failed review handling, sample interaction, navigation and rerun behavior.
 
-Provider calls and Redis HTTP responses are mocked in the automated checks. **They do not establish live model accuracy or provider connectivity.** Separate local live checks used a text-based PDF, actual embeddings and Groq to exercise retrieval, lesson generation, a three-question quiz, multiple-choice grading and source passages. No accuracy percentage has been measured. Public live provider and durable-quota checks remain pending.
+Provider calls and Redis HTTP responses are mocked in the automated checks. **They do not establish live model accuracy or provider connectivity.** Separate local live checks used a text-based PDF, actual embeddings and Groq to exercise retrieval, lesson generation, a three-question quiz, multiple-choice grading and source passages.
 
-The earlier public sample was checked in Chrome and a separate browser session: lesson, missing-evidence response, 3/3 quiz grading, source pages and notes download. The notebook update still requires a cloud browser check after deployment.
+Public browser checks on October 14 verified the notebook layout, MiniLM loading on a cold host, PDF indexing, a generated lesson, a three-question quiz, multiple-choice feedback, AI short-answer feedback, source passages and an Ask response with a page reference. The lesson reviewer rejected a draft and the interface visibly flagged it as unapproved.
+
+Two separate public sessions used different PDFs. The second began empty and answered from its own fictional notes; the first did not expose the second document's facts in the checked request. This is a session-isolation check, not proof that every unsupported question will be refused. Blank and password-protected PDFs were rejected with clear messages. The real session allowance blocked generation at 20 calls; separate live Redis checks verified atomic approval, counter increments and both session/global denial paths using isolated test keys.
+
+The prewritten sample's 3/3 quiz, source tabs and notes download also worked. Mobile browser validation remains pending. Provider and quota-store outage handling is covered by automated tests, not a live external-outage exercise. No accuracy or stress-test score has been measured.
 
 ## Project files
 
