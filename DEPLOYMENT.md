@@ -2,7 +2,9 @@
 
 ## Safe preview release
 
-The preview can be deployed without an AI provider or quota-store account. It contains no secret key and cannot make paid model calls. The UI clearly distinguishes the prewritten sample from live AI.
+The preview can be deployed without an AI provider or quota-store account. It contains no secret key and cannot make provider calls. The UI clearly distinguishes the prewritten sample from live AI.
+
+The existing app is [aya-study-buddy.streamlit.app](https://aya-study-buddy.streamlit.app/), connected to [ataje/study-buddy](https://github.com/ataje/study-buddy), branch `main`, entrypoint `app.py`. Updating that source triggers the host's deployment process. The October 14 notebook interface was approved locally; verify it in the cloud after the source update.
 
 1. The prepared source is published at [ataje/study-buddy](https://github.com/ataje/study-buddy). For a new deployment, put this prepared folder's **contents** in a personal GitHub repository. Preserve `agents/`, `rag/`, `llm/`, `samples/`, `tests/` and `.streamlit/`. Keep the original classroom repository separate.
 2. Sign in at [Streamlit Community Cloud](https://share.streamlit.io/). Connect the GitHub account that owns the personal repository.
@@ -10,15 +12,15 @@ The preview can be deployed without an AI provider or quota-store account. It co
 4. In Advanced settings, choose **Python 3.12**. The Python version is chosen in the deployment UI; do not rely on a `runtime.txt` file.
 5. Leave live AI disabled. No secrets are needed for the sample preview. Optionally set `SOURCE_REPOSITORY_URL` to the verified public repository URL in the app's Secrets settings.
 6. Deploy. Check the build logs, then confirm the public URL loads from a signed-out browser.
-7. Test the sample lesson, all three quiz answers, the unsupported sample question, source view, download and mobile layout. Save the real URL only after these checks pass.
+7. Test notebook navigation, the sample lesson, all three quiz answers, the unsupported sample question, source view, download and mobile layout. Confirm the upload and live actions stay disabled until the required public secrets are configured.
 
 If files were uploaded inside a wrapper directory, move them to the repository root before deployment. Streamlit custom configuration should be at `.streamlit/config.toml` in the repository root.
 
-The Linux deployment prefers CPU-only PyTorch wheels through the additional official PyTorch package index. Dependency installation and all 20 tests passed in GitHub Actions on Linux. Resource use and the Streamlit host build still require deployment verification.
+The Linux deployment prefers CPU-only PyTorch wheels through the additional official PyTorch package index. The earlier 20-check release passed in GitHub Actions on Linux. The notebook release has 24 passing local checks; its cloud build and browser behavior still need verification.
 
 ## Enable live AI
 
-A new provider account is needed because the previous Hugging Face account is unavailable. This application supports an OpenAI-compatible endpoint; its availability, model access and JSON response-format support must be verified with the chosen provider.
+Groq has been connected and tested for local development. This application supports an OpenAI-compatible endpoint; cloud model access, JSON response-format support and quotas still need verification before public live use. Keep the account on the free tier as requested; do not add payment details or upgrade as part of this release.
 
 Set these values through Streamlit's **Secrets** settings, never through a public code file:
 
@@ -38,9 +40,9 @@ MAX_PROMPT_CHARS = 24000
 
 Use a durable Redis service with a Redis-compatible REST API supporting `EVAL`, such as Upstash. The app's Lua script checks and increments the daily and session counters atomically. The REST token and endpoint must refer to the same database. Limit access to the app's dedicated quota database.
 
-Configure provider-side spending controls and start with a small allowance. A provider call limit is not a monetary spending cap. Do not point Community Cloud at `localhost`: that address is the cloud host, not your Mac.
+Use the provider's free-tier limits and start with a small allowance. A provider call limit is not a monetary spending cap. Do not point Community Cloud at `localhost`: that address is the cloud host, not your Mac.
 
-With public mode and a missing quota endpoint/token, live AI stays disabled even if a provider key is present. With a configured but unavailable quota store, it refuses paid requests. No automatic retry consumes additional calls after a failed provider response.
+With public mode and a missing quota endpoint/token, live AI stays disabled even if a provider key is present. With a configured but unavailable quota store, it refuses provider requests. No automatic retry consumes additional calls after a failed provider response. Do not copy local `APP_ENV="local"` settings to Community Cloud to bypass this control.
 
 ## Required live checks before sharing as a live AI application
 
@@ -56,8 +58,10 @@ With public mode and a missing quota endpoint/token, live AI stays disabled even
 
 ## Local live development
 
-Use environment variables or an ignored `.streamlit/secrets.toml`. For local testing only, set `APP_ENV="local"`; SQLite counters will be written under the ignored `.runtime/` folder. Keep `LIVE_AI_ENABLED=true` explicit. A local Ollama endpoint can be configured if Ollama and a compatible model are already installed, but it is not a Community Cloud hosting solution.
+Use environment variables or an ignored `.streamlit/secrets.toml`. For local testing only, set `APP_ENV="local"`; SQLite counters will be written under the ignored `.runtime/` folder. Keep `LIVE_AI_ENABLED=true` explicit. Launch with `python -m streamlit run app.py` from the prepared environment. Aya's local package also includes `Run Study Buddy.command`; keep its Terminal window open while using the app. The launcher is for the local Mac, not Community Cloud.
 
 ## Current verification boundary
 
-The prepared code passed 20 automated checks and dependency consistency checks locally and in GitHub Actions on Linux. The sample was exercised with Streamlit AppTest. This environment blocked binding a local preview port and downloading the MiniLM model. The preview is now deployed at https://aya-study-buddy.streamlit.app/ and checked in Chrome plus a separate browser session. The lesson, unsupported sample question, 3/3 quiz grading, source pages and notes download worked; homepage geometry at a 390px viewport had no horizontal overflow. Real-model retrieval remains unverified. No live provider key or Redis account was supplied. Live provider and quota-store checks are still required before enabling public AI generation.
+The notebook code passed 24 automated checks locally. Separate local live checks used actual embeddings and Groq with a text-based PDF: retrieval, lesson generation, a three-question quiz, multiple-choice grading and source passages worked. These checks do not measure answer accuracy.
+
+The earlier public sample was checked in Chrome and a separate browser session: lesson, unsupported sample question, 3/3 quiz grading, source pages and notes download. The notebook update needs a fresh cloud build and browser check. Public live AI remains disabled; a durable quota store has not been configured. Public provider, isolation and quota-failure checks are still required before enabling public AI generation.

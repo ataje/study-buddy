@@ -2,15 +2,24 @@
 
 **A multi-agent tutor that turns lecture PDFs into explanations, follow-up answers and practice quizzes.**
 
-Built by **Aya Taje** 
+Built by **Aya Taje**
 
 **Public preview:** [aya-study-buddy.streamlit.app](https://aya-study-buddy.streamlit.app/)
 
 ## Release status
 
-The app opens with a **sample preview** that needs no account, uploads or API credits. Its lesson, questions and follow-up answers are explicitly labeled as **prewritten examples**. The quiz is interactive and graded deterministically.
+The notebook interface puts lecture uploads, Study, Practice and Ask in one focused workspace. A separate **sample preview** needs no account, uploads or API credits. Its lesson, questions and follow-up answers are explicitly labeled as **prewritten examples**. The sample quiz is interactive and graded deterministically.
 
-**Live AI starts disabled.** It requires an OpenAI-compatible provider, a supported model, a server-side API key, and a durable public usage counter. No live provider credentials are included in this repository. The public sample preview is deployed. Provider generation and the real MiniLM model download remain unverified; this is not yet a fully live AI demo.
+**Public live AI remains disabled.** It requires an OpenAI-compatible provider, a supported model, a server-side API key, and a durable public usage counter. No live provider credentials are included in this repository. Real PDF retrieval, lesson generation, quiz generation and multiple-choice grading have been tested locally with Groq. This local verification does not enable or verify public live AI.
+
+## Notebook interface update — October 14, 2026
+
+- Warm paper colors, sage accents, consistent icons and compact navigation replace the oversized landing layout.
+- Lecture upload is the primary starting point; Study, Practice and Ask share the same session's notes.
+- Lessons, quiz feedback and answers sit beside an evidence panel with source passages and page references.
+- The sample uses the same notebook style while retaining its explicit prewritten-example label.
+
+The notebook release passed local checks and was approved for publication. Cloud verification of this interface is pending.
 
 ## Try it
 
@@ -21,7 +30,7 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Open the address printed by Streamlit and choose **Try the sample preview**. VS Code is optional. Python 3.12 is the tested dependency target.
+Open the address printed by Streamlit and choose **Explore a sample lesson**. VS Code is optional. Python 3.12 is the tested dependency target.
 
 For live setup and publication, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -53,7 +62,7 @@ The agents have focused inputs and outputs. Homepage routing, PDF validation and
 - Each visitor gets a separate ChromaDB collection. Uploading or switching a document does not overwrite another visitor's vectors.
 - A replacement document is indexed successfully before it becomes active. Empty, scanned, encrypted and overlarge PDFs receive a useful error.
 - Each file is limited to **5 MB, 40 pages and 25,000 extracted words**; a session holds at most **three documents**.
-- Paid work runs on explicit submission. Cached UI state prevents free-form requests from running again on ordinary Streamlit reruns; failed lessons require an explicit retry.
+- Provider work runs on explicit submission. Cached UI state prevents free-form requests from running again on ordinary Streamlit reruns; failed lessons require an explicit retry.
 - Model output is capped at **1,200 tokens per call** by default. Prompts are limited to **24,000 characters**. SDK retries are disabled, and requests have a timeout.
 - Default quotas are **100 provider calls per UTC day across all visitors** and **30 per session per day**. Every attempted request reserves a call before reaching the provider. A user action can require several calls.
 - Public live mode requires a **durable Redis REST counter** with an atomic reservation. If the counter is unavailable or the quota is exhausted, provider calls fail closed. Local development can use SQLite.
@@ -75,14 +84,17 @@ python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-The prepared release passed **20 automated checks** using Python 3.12, real ChromaDB storage with deterministic test embeddings, and Streamlit AppTest. They cover session isolation, page metadata, document replacement, PDF limits, concurrent daily quotas, quota-store failure, configuration, provider-error redaction, quiz validation, grading, no-document routing, failed review handling, sample interaction and rerun behavior.
+The notebook release passed **24 automated checks locally** using Python 3.12, real ChromaDB storage with deterministic test embeddings, and Streamlit AppTest. They cover session isolation, page metadata, document replacement, PDF limits, concurrent daily quotas, quota-store failure, configuration, provider-error redaction, quiz validation, grading, no-document routing, failed review handling, sample interaction, navigation and rerun behavior.
 
-Provider calls and Redis HTTP responses are mocked in these checks. **They do not establish live model accuracy or provider connectivity.** The actual MiniLM download was blocked by network restrictions in the preparation environment. The deployed preview was checked in Chrome and a separate browser session: lesson, missing-evidence response, 3/3 quiz grading, source pages and notes download. Live end-to-end checks remain pending.
+Provider calls and Redis HTTP responses are mocked in the automated checks. **They do not establish live model accuracy or provider connectivity.** Separate local live checks used a text-based PDF, actual embeddings and Groq to exercise retrieval, lesson generation, a three-question quiz, multiple-choice grading and source passages. No accuracy percentage has been measured. Public live provider and durable-quota checks remain pending.
+
+The earlier public sample was checked in Chrome and a separate browser session: lesson, missing-evidence response, 3/3 quiz grading, source pages and notes download. The notebook update still requires a cloud browser check after deployment.
 
 ## Project files
 
 ```text
-app.py                  Existing Streamlit interface and orchestration
+app.py                  Streamlit notebook interface and orchestration
+notebook_ui.py          Shared notebook theme, icons and headings
 sample_preview.py       Clearly labeled prewritten fallback
 samples/lecture.md      Original public sample notes
 settings.py             Server-side settings
