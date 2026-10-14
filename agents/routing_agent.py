@@ -1,4 +1,6 @@
 from llm import LLMService
+from llm.budget import UsageLimitError
+from llm.service import ProviderError
 
 
 class RoutingAgent:
@@ -76,9 +78,9 @@ Rules:
 - If the user asks for a quiz, test, or practice questions, choose quiz_agent.
 - Prefer clarification_agent when confidence is low.
 
-Return ONLY valid JSON in this exact format:
+Select exactly one of the six agent names listed above. Return ONLY valid JSON in this format:
 {
-  "selected_agent": "query_enhancer | retrieval_agent | explaining_agent | quiz_agent | navigation_agent | clarification_agent",
+  "selected_agent": "explaining_agent",
   "intent": "short_intent_label",
   "confidence": 0.0,
   "reasoning": "brief reasoning",
@@ -116,12 +118,13 @@ Current app state:
                 raise ValueError("Unexpected route")
             return result
 
-        except Exception:
+        except Exception as exc:
+            message = str(exc) if isinstance(exc, (UsageLimitError, ProviderError)) else "This request could not be completed. Please try again or ask a more specific question."
             return {
                 "selected_agent": "clarification_agent",
                 "intent": "router_error",
                 "confidence": 0.0,
                 "reasoning": "The router could not complete this request.",
                 "needs_clarification": True,
-                "clarification_question": "I had trouble deciding the next step. Could you rephrase your request?"
+                "clarification_question": message
             }
