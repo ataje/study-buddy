@@ -6,6 +6,10 @@ from settings import setting, enabled, positive_int
 from .budget import CallBudget
 
 
+class ProviderError(RuntimeError):
+    """A sanitized provider failure suitable for the app UI."""
+
+
 class LLMService:
     def __init__(self, model_name=None, api_key=None, base_url=None,
                  default_temperature=0.3, budget=None):
@@ -65,8 +69,15 @@ class LLMService:
             request_kwargs["response_format"] = response_format
         try:
             response = client.chat.completions.create(**request_kwargs)
-        except Exception:
-            raise RuntimeError("The AI provider could not complete this request. Please try again later.") from None
+        except Exception as exc:
+            status = getattr(exc, "status_code", None)
+            if status == 429:
+                message = "The free AI provider is temporarily rate-limited. Wait a minute, then try again."
+            elif status in (401, 403):
+                message = "The AI connection needs attention. Check your saved key and model access."
+            else:
+                message = "The AI provider could not complete this request. Please try again later."
+            raise ProviderError(message) from None
         content = response.choices[0].message.content
         if not content:
             raise RuntimeError("The AI returned an empty response. Please try again.")
