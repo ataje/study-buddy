@@ -174,6 +174,41 @@ class AgentTests(unittest.TestCase):
         result=RoutingAgent(fake).llm_router_decision('quiz me',False)
         self.assertEqual(result['intent'],'missing_document')
 
+    def test_router_reports_quota_exhaustion_without_diagnostics(self):
+        allowance_message="The demo's AI allowance has been reached. Please try the sample preview."
+        def reserve():
+            raise UsageLimitError(allowance_message) from RuntimeError('sensitive-quota-diagnostic')
+        with patch.dict(os.environ, {'LIVE_AI_ENABLED':'true'}):
+            service=LLMService(model_name='test',api_key='test',
+                               budget=SimpleNamespace(ready=True,reserve=reserve))
+            service.client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(
+                create=lambda **kw:self.fail('Quota exhaustion must prevent the provider request'))))
+            result=RoutingAgent(service).llm_router_decision('Explain embeddings',True)
+        self.assertEqual(result['selected_agent'],'clarification_agent')
+        self.assertTrue(result['needs_clarification'])
+        self.assertEqual(result['clarification_question'],allowance_message)
+        self.assertNotIn('sensitive',json.dumps(result))
+
+    def test_router_preserves_sanitized_provider_status_messages(self):
+        class ProviderFailure(RuntimeError):
+            def __init__(self,status):
+                super().__init__('sensitive-provider-key-and-account-detail')
+                self.status_code=status
+        messages={
+            429:'The free AI provider is temporarily rate-limited. Wait a minute, then try again.',
+            401:'The AI connection needs attention. Check your saved key and model access.',
+            403:'The AI connection needs attention. Check your saved key and model access.',
+        }
+        for status,message in messages.items():
+            with self.subTest(status=status),patch.dict(os.environ,{'LIVE_AI_ENABLED':'true'}):
+                def create(**kwargs): raise ProviderFailure(status)
+                service=LLMService(model_name='test',api_key='test',
+                                   budget=SimpleNamespace(ready=True,reserve=lambda:None))
+                service.client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+                result=RoutingAgent(service).llm_router_decision('Explain embeddings',True)
+                self.assertEqual(result['clarification_question'],message)
+                self.assertNotIn('sensitive',json.dumps(result))
+
     def test_malformed_quizzes_are_rejected_before_display(self):
         from copy import deepcopy
         valid={'title':'Quiz','questions':[{'question':'Which?', 'type':'multiple_choice','options':['A','B'], 'answer':'A','explanation':'A is supported.'}]}
